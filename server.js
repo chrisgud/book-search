@@ -1,9 +1,18 @@
 const express = require("express");
+const logger = require("morgan");
+const mongoose = require("mongoose");
+
+const axios = require("axios");
+const cheerio = require("cheerio");
+const db = require("./models");
 const path = require("path");
+
+const routes = require("./routes");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
 // Define middleware here
+app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Serve up static assets (usually on heroku)
@@ -12,12 +21,8 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Define API routes here
-
-// Send every other request to the React app
-// Define any API routes before this runs
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
+app.use(routes);
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/googebooks");
 
 app.listen(PORT, () => {
   console.log(`🌎 ==> Server now on port ${PORT}!`);
