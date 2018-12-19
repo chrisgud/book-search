@@ -1,28 +1,41 @@
 import React, { Component } from "react";
 import DeleteBtn from "../components/DeleteBtn";
-import Jumbotron from "../components/Jumbotron";
+import BookSearchJumbotron from "../components/BookSearchJumbotron";
+import BookSearchResult from "../components/BookSearchResult";
 import API from "../utils/API";
 import { Link } from "react-router-dom";
 import { Col, Row, Container } from "../components/Grid";
 import { List, ListItem } from "../components/List";
-import { Input, TextArea, FormBtn } from "../components/Form";
+import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+
+const divStyle = {
+  marginBottom: 30,
+  marginTop: 30,
+  padding: 30,
+}
 
 class Search extends Component {
   state = {
     books: [],
     title: "",
-    author: "",
-    synopsis: ""
   };
 
   componentDidMount() {
     this.loadBooks();
   }
 
+  saveBook = id => {
+    API.saveBook(id)
+      .then(res =>
+        console.log(res)
+      )
+      .catch(err => console.log(err));
+  }
+
   loadBooks = () => {
     API.getBooks()
       .then(res =>
-        this.setState({ books: res.data, title: "", author: "", synopsis: "" })
+        this.setState({ books: res.data, title: "" })
       )
       .catch(err => console.log(err));
   };
@@ -42,13 +55,23 @@ class Search extends Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    if (this.state.title && this.state.author) {
-      API.saveBook({
-        title: this.state.title,
-        author: this.state.author,
-        synopsis: this.state.synopsis
-      })
-        .then(res => this.loadBooks())
+    if (this.state.title) {
+      API.searchBooks(this.state.title)
+        .then(res => {
+          const books = res.data.items.map((el) => {
+            return {
+              googleId: el.id,
+              authors: el.volumeInfo.authors,
+              description: el.volumeInfo.description,
+              image: el.volumeInfo.imageLinks.thumbnail,
+              link: el.volumeInfo.infoLink,
+              title: el.volumeInfo.title,
+            }
+          });
+          const newBooks = books.filter((book) => !this.state.books.filter(e => e.googleId === book.googleId).length > 0)
+          newBooks.forEach(book => this.saveBook(book));
+          this.loadBooks()
+        })
         .catch(err => console.log(err));
     }
   };
@@ -57,57 +80,46 @@ class Search extends Component {
     return (
       <Container fluid>
         <Row>
-          <Col size="md-6">
-            <Jumbotron>
-              <h1>What Books Should I Read?</h1>
-            </Jumbotron>
-            <form>
-              <Input
-                value={this.state.title}
-                onChange={this.handleInputChange}
-                name="title"
-                placeholder="Title (required)"
-              />
-              <Input
-                value={this.state.author}
-                onChange={this.handleInputChange}
-                name="author"
-                placeholder="Author (required)"
-              />
-              <TextArea
-                value={this.state.synopsis}
-                onChange={this.handleInputChange}
-                name="synopsis"
-                placeholder="Synopsis (Optional)"
-              />
-              <FormBtn
-                disabled={!(this.state.author && this.state.title)}
-                onClick={this.handleFormSubmit}
-              >
-                Submit Book
-              </FormBtn>
-            </form>
+          <Col size="md-12">
+            <BookSearchJumbotron>
+              <h1>(React) Google Books Search</h1>
+              <h3>Search for and Save Books of Interest</h3>
+            </BookSearchJumbotron>
           </Col>
-          <Col size="md-6 sm-12">
-            <Jumbotron>
-              <h1>Books On My List</h1>
-            </Jumbotron>
-            {this.state.books.length ? (
-              <List>
-                {this.state.books.map(book => (
-                  <ListItem key={book._id}>
-                    <Link to={"/books/" + book._id}>
-                      <strong>
-                        {book.title} by {book.author}
-                      </strong>
-                    </Link>
-                    <DeleteBtn onClick={() => this.deleteBook(book._id)} />
-                  </ListItem>
-                ))}
-              </List>
+        </Row>
+        <Row>
+          <Col size="md-12">
+            <div style={divStyle} className="border border-dark">
+              <h5>Book Search</h5>
+              <Form style={{ marginTop: 20, marginBottom: 40 }}>
+                <FormGroup>
+                  <Label for='bookTitle'>Book</Label>
+                  <Input
+                    type='text'
+                    name='title'
+                    id='bookTitle'
+                    placeholder={this.props.placeholder}
+                    onChange={this.handleInputChange}
+                  />
+                </FormGroup>
+                <Button className='float-right' onClick={this.handleFormSubmit}>Search</Button>
+              </Form>
+            </div>
+            <div style={divStyle} className="border border-dark">
+              <h5>Results</h5>
+              {this.state.books.length ? (
+                this.state.books.map(book => (
+                  <BookSearchResult key={book._id}
+                  authors={book.authors}
+                  description={book.description}
+                  image={book.image}
+                  link={book.link}
+                  title={book.title} />
+                ))
             ) : (
               <h3>No Results to Display</h3>
             )}
+            </div>
           </Col>
         </Row>
       </Container>
