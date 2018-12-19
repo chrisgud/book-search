@@ -1,12 +1,8 @@
 import React, { Component } from "react";
-import DeleteBtn from "../components/DeleteBtn";
 import BookSearchJumbotron from "../components/BookSearchJumbotron";
 import BookSearchResult from "../components/BookSearchResult";
 import API from "../utils/API";
-import { Link } from "react-router-dom";
-import { Col, Row, Container } from "../components/Grid";
-import { List, ListItem } from "../components/List";
-import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
 
 const divStyle = {
   marginBottom: 30,

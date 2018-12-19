@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Button } from 'reactstrap';
+import { Row, Col, Button } from 'reactstrap';
 
 const styleButton = {
     marginLeft: 5,
