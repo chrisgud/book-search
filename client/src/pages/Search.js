@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import BookSearchJumbotron from "../components/BookSearchJumbotron";
 import BookSearchResult from "../components/BookSearchResult";
 import API from "../utils/API";
-import { Button, Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 const divStyle = {
   marginBottom: 30,
