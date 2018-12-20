@@ -79,7 +79,7 @@ class Search extends Component {
           <Col size="md-12">
             <div style={divStyle} className="border border-dark">
               <h5>Book Search</h5>
-              <Form style={{ marginTop: 20, marginBottom: 40 }}>
+              <Form style={{ marginTop: 20, marginBottom: 40 }} onSubmit={this.handleFormSubmit}>
                 <FormGroup>
                   <Label for='bookTitle'>Book</Label>
                   <Input
