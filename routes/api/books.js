@@ -6,6 +6,11 @@ router.route("/")
   .get(booksController.findAll)
   .post(booksController.create);
 
+router.route("/saved/")
+  .get(booksController.findSaved);
+
+router.route("/saved/:id")
+  .post(booksController.saveBook);
 // Matches with "/api/books/:id"
 router
   .route("/:id")

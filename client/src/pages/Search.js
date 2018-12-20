@@ -20,25 +20,11 @@ class Search extends Component {
     this.loadBooks();
   }
 
-  saveBook = id => {
-    API.saveBook(id)
-      .then(res =>
-        console.log(res)
-      )
-      .catch(err => console.log(err));
-  }
-
   loadBooks = () => {
     API.getBooks()
       .then(res =>
         this.setState({ books: res.data, title: "" })
       )
-      .catch(err => console.log(err));
-  };
-
-  deleteBook = id => {
-    API.deleteBook(id)
-      .then(res => this.loadBooks())
       .catch(err => console.log(err));
   };
 
@@ -48,6 +34,12 @@ class Search extends Component {
       [name]: value
     });
   };
+
+  handleSave = id => {
+    API.saveBook(id)
+    .then(res => this.loadBooks())
+    .catch(err => console.log(err));
+  }
 
   handleFormSubmit = event => {
     event.preventDefault();
@@ -65,7 +57,7 @@ class Search extends Component {
             }
           });
           const newBooks = books.filter((book) => !this.state.books.filter(e => e.googleId === book.googleId).length > 0)
-          newBooks.forEach(book => this.saveBook(book));
+          newBooks.forEach(book => API.storeBook(book));
           this.loadBooks()
         })
         .catch(err => console.log(err));
@@ -103,14 +95,18 @@ class Search extends Component {
             </div>
             <div style={divStyle} className="border border-dark">
               <h5>Results</h5>
-              {this.state.books.length ? (
-                this.state.books.map(book => (
+              { this.state.books.length ? (
+                this.state.books.filter((unsavedBook) => !unsavedBook.saved).map(book => (
                   <BookSearchResult key={book._id}
                   authors={book.authors}
                   description={book.description}
                   image={book.image}
                   link={book.link}
-                  title={book.title} />
+                  title={book.title}
+                  googleId={book.googleId}
+                  saved={book.saved}
+                  handleSave={this.handleSave}
+                   />
                 ))
             ) : (
               <h3>No Results to Display</h3>
